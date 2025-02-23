@@ -8,7 +8,6 @@ Este é um projeto simples que permite detectar a localização de uma foto (a p
 
 - Upload de imagem contendo coordenadas GPS.
 - Exibição da localização da foto em um mapa interativo.
-- Visualização em 3D do local no Google Maps.
 - Opção de abrir a localização diretamente no Google Maps.
 
 ## Tecnologias Utilizadas
