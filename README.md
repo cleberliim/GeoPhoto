@@ -3,6 +3,7 @@
 Este é um projeto simples que permite detectar a localização de uma foto (a partir das coordenadas GPS) e exibi-la em um mapa interativo.
 
 ![Foto de Exemplo](img-example/1.jpg)
+![Foto de Exemplo](img-example/2.jpg)
 
 ## Funcionalidades
 
