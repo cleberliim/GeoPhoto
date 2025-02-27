@@ -4,12 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detector de Localização de Fotos</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"></script>
     <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
       #map {
         height: 100vh;
       }
+
       .form-container {
         position: absolute;
         top: 15%;
@@ -24,11 +33,14 @@
         max-width: 350px;
         text-align: center;
       }
+
       .form-container input,
-      .form-container button {
+      .form-container button,
+      .form-container select {
         width: 100%;
         margin-top: 10px;
       }
+
       .popup-button {
         background-color: #1d4ed8;
         color: white !important;
@@ -38,6 +50,7 @@
         display: inline-block;
         margin-top: 10px;
       }
+
       #map {
         width: 100%;
       }
@@ -57,42 +70,43 @@
       >
         Enviar
       </button>
+
+      <select
+        id="mapStyleSelect"
+        class="border p-2 rounded mt-3"
+        onchange="changeMapStyle()"
+      >
+        <option value="mapbox://styles/mapbox/streets-v11">Padrão</option>
+        <option value="mapbox://styles/mapbox/satellite-v9">Satelite</option>
+        <option value="mapbox://styles/mapbox/dark-v10">Mapa Preto</option>
+      </select>
     </div>
 
     <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
     <script>
-      // Criando as camadas do mapa
-      const osmLayer = L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {}
-      );
+      // Defina o token Mapbox
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoiY2xlYmVyb2x2IiwiYSI6ImNtN25hb3V2ZjB2b2gybXBybHd2ZXF1ajgifQ.YAFaxUpDyI8W7IV0aVY6FA";
 
-      const satelliteLayer = L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        {
-          attribution:
-            "&copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community",
-        }
-      );
-
-      // Criando o mapa e adicionando a camada padrão (OpenStreetMap)
-      let map = L.map("map", {
-        center: [0, 0],
-        zoom: 2,
-        layers: [osmLayer], // Camada inicial
+      // Criando o mapa com Mapbox
+      const map = new mapboxgl.Map({
+        container: "map", // ID do contêiner do mapa
+        style: "mapbox://styles/mapbox/streets-v11", // Estilo do mapa inicial
+        center: [0, 0], // Posição inicial do mapa
+        zoom: 2, // Zoom inicial
       });
 
-      // Criando um controle de camadas para alternar entre Padrão e Satélite
-      const baseMaps = {
-        Padrão: osmLayer,
-        Satélite: satelliteLayer,
-      };
+      // Função para mudar o estilo do mapa
+      function changeMapStyle() {
+        const selectedStyle = document.getElementById("mapStyleSelect").value;
+        console.log("Estilo selecionado:", selectedStyle); // Adicionando log para verificar o estilo selecionado
+        map.setStyle(selectedStyle);
+      }
 
-      L.control.layers(baseMaps).addTo(map);
-
+      // Variável para o marcador
       let marker;
 
       function uploadImage() {
@@ -135,15 +149,21 @@
 
             // Passar as coordenadas para o mapa
             if (!isNaN(latitudeDecimal) && !isNaN(longitudeDecimal)) {
-              map.setView([latitudeDecimal, longitudeDecimal], 15);
+              map.flyTo({
+                center: [longitudeDecimal, latitudeDecimal],
+                zoom: 15,
+              });
 
               if (marker) marker.remove();
-              marker = L.marker([latitudeDecimal, longitudeDecimal])
+              marker = new mapboxgl.Marker()
+                .setLngLat([longitudeDecimal, latitudeDecimal])
                 .addTo(map)
-                .bindPopup(
-                  `<b>Localização da Foto</b><br><br>Lat: ${latitudeDecimal}, <br>Lng: ${longitudeDecimal}<br><br><a href="https://www.google.com/maps/search/?api=1&query=${latitudeDecimal},${longitudeDecimal}" target="_blank" class="popup-button">Ver no Google Maps</a>`
+                .setPopup(
+                  new mapboxgl.Popup().setHTML(
+                    `<b>Localização da Foto</b><br><br>Lat: ${latitudeDecimal}, <br>Lng: ${longitudeDecimal}<br><br><a href="https://www.google.com/maps/search/?api=1&query=${latitudeDecimal},${longitudeDecimal}" target="_blank" class="popup-button">Ver no Google Maps</a>`
+                  )
                 )
-                .openPopup();
+                .togglePopup();
             } else {
               alert("A imagem não possui coordenadas GPS válidas.");
             }
