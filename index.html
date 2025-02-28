@@ -2,23 +2,24 @@
 <html lang="pt">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="initial-scale=1.0" />
     <title>Detector de Localização de Fotos</title>
     <link
-      href="https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.css"
+      href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css"
       rel="stylesheet"
     />
-    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
     <style>
       body {
         margin: 0;
         padding: 0;
       }
-
       #map {
-        height: 100vh;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
       }
-
       .form-container {
         position: absolute;
         top: 15%;
@@ -33,14 +34,12 @@
         max-width: 350px;
         text-align: center;
       }
-
       .form-container input,
       .form-container button,
       .form-container select {
         width: 100%;
         margin-top: 10px;
       }
-
       .popup-button {
         background-color: #1d4ed8;
         color: white !important;
@@ -50,110 +49,107 @@
         display: inline-block;
         margin-top: 10px;
       }
-
-      #map {
-        width: 100%;
-      }
     </style>
   </head>
-  <body class="bg-gray-100 font-sans">
+  <body>
     <div class="form-container">
-      <input
-        type="file"
-        id="fileInput"
-        accept="image/*"
-        class="border p-2 rounded"
-      />
-      <button
-        onclick="uploadImage()"
-        class="bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-      >
-        Enviar
-      </button>
-
-      <select
-        id="mapStyleSelect"
-        class="border p-2 rounded mt-3"
-        onchange="changeMapStyle()"
-      >
+      <input type="file" id="fileInput" accept="image/*" />
+      <button onclick="uploadImage()">Enviar</button>
+      <select id="mapStyleSelect" onchange="changeMapStyle()">
         <option value="mapbox://styles/mapbox/streets-v11">Padrão</option>
         <option value="mapbox://styles/mapbox/satellite-v9">Satelite</option>
         <option value="mapbox://styles/mapbox/dark-v10">Mapa Preto</option>
       </select>
     </div>
-
     <div id="map"></div>
-
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
     <script>
-      // Defina o token Mapbox
       mapboxgl.accessToken =
         "pk.eyJ1IjoiY2xlYmVyb2x2IiwiYSI6ImNtN25hb3V2ZjB2b2gybXBybHd2ZXF1ajgifQ.YAFaxUpDyI8W7IV0aVY6FA";
-
-      // Criando o mapa com Mapbox
       const map = new mapboxgl.Map({
-        container: "map", // ID do contêiner do mapa
-        style: "mapbox://styles/mapbox/streets-v11", // Estilo do mapa inicial
-        center: [0, 0], // Posição inicial do mapa
-        zoom: 2, // Zoom inicial
+        container: "map",
+        style: "mapbox://styles/mapbox/light-v11", // Estilo com dados de edifícios
+        center: [-74.0066, 40.7135], // Localização inicial
+        zoom: 15.5, // Zoom inicial
+        pitch: 45, // Inclinação da câmera (visualização em 3D)
+        bearing: -17.6, // Direção da câmera
+        antialias: true, // Suavização
       });
 
-      // Função para mudar o estilo do mapa
+      map.on("style.load", () => {
+        const layers = map.getStyle().layers;
+        const labelLayerId = layers.find(
+          (layer) => layer.type === "symbol" && layer.layout["text-field"]
+        ).id;
+
+        map.addLayer(
+          {
+            id: "add-3d-buildings",
+            source: "composite",
+            "source-layer": "building",
+            filter: ["==", "extrude", "true"],
+            type: "fill-extrusion",
+            minzoom: 15,
+            paint: {
+              "fill-extrusion-color": "#aaa",
+              "fill-extrusion-height": [
+                "interpolate",
+                ["linear"],
+                ["zoom"],
+                15,
+                0,
+                15.05,
+                ["get", "height"],
+              ],
+              "fill-extrusion-base": [
+                "interpolate",
+                ["linear"],
+                ["zoom"],
+                15,
+                0,
+                15.05,
+                ["get", "min_height"],
+              ],
+              "fill-extrusion-opacity": 0.6,
+            },
+          },
+          labelLayerId
+        );
+      });
+
+      // Função para alterar o estilo do mapa
       function changeMapStyle() {
         const selectedStyle = document.getElementById("mapStyleSelect").value;
-        console.log("Estilo selecionado:", selectedStyle); // Adicionando log para verificar o estilo selecionado
         map.setStyle(selectedStyle);
       }
 
-      // Variável para o marcador
       let marker;
-
       function uploadImage() {
         const fileInput = document.getElementById("fileInput");
         if (!fileInput.files.length) {
           alert("Selecione uma imagem primeiro!");
           return;
         }
-
-        const formData = new FormData();
-        formData.append("image", fileInput.files[0]);
-
         const file = fileInput.files[0];
-
-        // Lê a imagem e extrai os dados EXIF
         readExifData(file);
       }
 
-      // Função para extrair as coordenadas EXIF e converter para formato decimal
       function readExifData(file) {
         EXIF.getData(file, function () {
-          // Pegando as coordenadas de latitude e longitude
           const latitude = EXIF.getTag(this, "GPSLatitude");
           const longitude = EXIF.getTag(this, "GPSLongitude");
-
-          // Pegando as referências (S ou N para latitude, W ou E para longitude)
           const latitudeRef = EXIF.getTag(this, "GPSLatitudeRef");
           const longitudeRef = EXIF.getTag(this, "GPSLongitudeRef");
 
           if (latitude && longitude && latitudeRef && longitudeRef) {
-            console.log("Latitude antes de converter:", latitude);
-            console.log("Longitude antes de converter:", longitude);
-
-            // Convertendo as coordenadas de DMS para decimal
             const latitudeDecimal = convertToDecimal(latitude, latitudeRef);
             const longitudeDecimal = convertToDecimal(longitude, longitudeRef);
 
-            console.log("Latitude convertida:", latitudeDecimal);
-            console.log("Longitude convertida:", longitudeDecimal);
-
-            // Passar as coordenadas para o mapa
             if (!isNaN(latitudeDecimal) && !isNaN(longitudeDecimal)) {
               map.flyTo({
                 center: [longitudeDecimal, latitudeDecimal],
                 zoom: 15,
               });
-
               if (marker) marker.remove();
               marker = new mapboxgl.Marker()
                 .setLngLat([longitudeDecimal, latitudeDecimal])
@@ -173,19 +169,12 @@
         });
       }
 
-      // Função para converter de DMS para decimal
-      function convertToDecimal(degreesMinutesSeconds, reference) {
-        const degrees = degreesMinutesSeconds[0];
-        const minutes = degreesMinutesSeconds[1];
-        const seconds = degreesMinutesSeconds[2];
-
+      function convertToDecimal(dms, ref) {
+        const degrees = dms[0];
+        const minutes = dms[1];
+        const seconds = dms[2];
         let decimal = degrees + minutes / 60 + seconds / 3600;
-
-        // Se a referência for 'S' ou 'W', o valor é negativo
-        if (reference === "S" || reference === "W") {
-          decimal = -decimal;
-        }
-
+        if (ref === "S" || ref === "W") decimal = -decimal;
         return decimal;
       }
     </script>
