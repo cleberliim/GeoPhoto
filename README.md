@@ -15,4 +15,4 @@ Este é um projeto simples que permite detectar a localização de uma foto (a p
 - **HTML5**: Estrutura da página web.
 - **CSS**: Estilo da página, utilizando o Tailwind CSS.
 - **JavaScript**: Lógica de manipulação de mapa, upload de imagem e processamento de coordenadas.
-- **leaflet**: Para renderizar o mapa e exibir as coordenadas.
+- **Mapbox**: Para renderizar o mapa e exibir as coordenadas.
