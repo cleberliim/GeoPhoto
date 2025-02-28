@@ -1,1 +1,4 @@
-node_modules
+# Dependências
+node_modules/
+venv/
+*.log
