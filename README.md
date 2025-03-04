@@ -1,18 +1,38 @@
-# GeoPhoto
+# 📍 Geolocalização em Imagens
 
-Este é um projeto simples que permite detectar a localização de uma foto (a partir das coordenadas GPS) e exibi-la em um mapa interativo.
+Este projeto explora a extração de coordenadas GPS embutidas nos metadados de uma imagem e sua exibição em um mapa interativo utilizando o Mapbox.
 
-![Foto de Exemplo](img-example/3.gif)
+## 🚀 Tecnologias Utilizadas
+- ✅ **JavaScript**
+- ✅ **API Mapbox GL JS**
 
-## Funcionalidades
+## 💡 Aprendizados
+Durante o desenvolvimento deste projeto, adquiri conhecimentos sobre:
+- 🔹 Extração de metadados de imagens para obtenção de coordenadas GPS.
+- 🔹 Manipulação de mapas interativos via JavaScript.
+- 🔹 Integração com o **Mapbox GL JS** para visualização dinâmica.
 
-- Upload de imagem contendo coordenadas GPS.
-- Exibição da localização da foto em um mapa interativo.
-- Opção de abrir a localização diretamente no Google Maps.
+## 🛠️ Aplicação na Logística
+Este projeto pode ser aplicado para otimizar o rastreamento de entregas. Um exemplo prático seria a captura automática das coordenadas GPS ao tirar uma foto de uma nota fiscal (NF) no momento da entrega. Com isso, é possível:
 
-## Tecnologias Utilizadas
+- ✅ **Confirmação de entrega** com local exato 📍
+- ✅ **Automação de check-ins logísticos** 🕒
+- ✅ **Redução de fraudes e erros em entregas** 🔍
+- ✅ **Monitoramento em tempo real** de entregas finalizadas 📡
 
-- **HTML5**: Estrutura da página web.
-- **CSS**: Estilo da página, utilizando o Tailwind CSS.
-- **JavaScript**: Lógica de manipulação de mapa, upload de imagem e processamento de coordenadas.
-- **Mapbox**: Para renderizar o mapa e exibir as coordenadas.
+## 📌 Como Executar o Projeto
+```bash
+# Clone este repositório
+git clone https://github.com/seu-usuario/nome-do-repositorio.git
+
+# Instale as dependências (se houver)
+npm install  # ou yarn install
+
+# Obtenha uma chave de API do Mapbox e configure no código
+
+# Execute o projeto localmente e teste a extração e exibição das coordenadas
+npm start  # ou yarn start
+```
+
+## 📜 Licença
+Este projeto é de código aberto e está licenciado sob a **MIT License**.
