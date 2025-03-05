@@ -4,121 +4,90 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="initial-scale=1.0" />
     <title>Detector de Localização de Fotos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css"
       rel="stylesheet"
     />
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-      }
-      #map {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 100%;
-      }
-      .form-container {
-        background-color: #eeeeee !important;
-        position: absolute;
-        top: 15%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-       
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        width: 90%;
-        max-width: 350px;
-        text-align: center;
-      }
-      .form-container input,
-      .form-container button,
-      .form-container select {
-        width: 100%;
-        margin-top: 10px;
-      }
-      .popup-button {
-        background-color: #1d4ed8;
-        color: white !important;
-        padding: 10px 15px;
-        border-radius: 5px;
-        text-decoration: none;
-        display: inline-block;
-        margin-top: 10px;
-      }
-    </style>
   </head>
-  <body>
-    <div class="form-container">
-      <input type="file" id="fileInput" accept="image/*" />
-      <button onclick="uploadImage()">Enviar</button>
-      <select id="mapStyleSelect" onchange="changeMapStyle()">
-        <option value="mapbox://styles/mapbox/streets-v11">Padrão</option>
-        <option value="mapbox://styles/mapbox/satellite-v9">Satelite</option>
-        <option value="mapbox://styles/mapbox/dark-v10">Mapa Preto</option>
-      </select>
+  <body class="flex h-screen">
+    <!-- Mapa -->
+    <div id="map" class="flex-grow h-full"></div>
+
+    <!-- Sidebar com metadados -->
+    <div id="sidebar" class="w-80 bg-gray-100 p-5 shadow-md overflow-y-auto">
+      <div class="bg-gray-200 p-5 rounded-lg shadow text-center mb-5">
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          class="w-full mb-3 p-2 border rounded"
+        />
+        <button
+          onclick="uploadImage()"
+          class="w-full bg-blue-600 text-white py-2 rounded"
+        >
+          Enviar
+        </button>
+        <select
+          id="mapStyleSelect"
+          onchange="changeMapStyle()"
+          class="w-full mt-3 p-2 border rounded"
+        >
+          <option value="mapbox://styles/mapbox/streets-v11">Padrão</option>
+          <option value="mapbox://styles/mapbox/satellite-v9">Satélite</option>
+          <option value="mapbox://styles/mapbox/dark-v10">Mapa Preto</option>
+        </select>
+      </div>
+      <div id="metadata" class="text-gray-700">
+        <h3 class="font-bold text-lg">Metadados da Imagem</h3>
+        <p><strong>Origem:</strong> <span id="imageSource"></span></p>
+        <p><strong>Tamanho:</strong> <span id="imageSize"></span></p>
+        <p><strong>Formato:</strong> <span id="imageFormat"></span></p>
+        <p><strong>Coordenadas:</strong> <span id="imageCoords"></span></p>
+        <img
+          id="imagePreview"
+          src=""
+          alt="Preview"
+          class="w-full mt-3 rounded hidden"
+        />
+      </div>
     </div>
-    <div id="map"></div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
     <script>
       mapboxgl.accessToken =
         "pk.eyJ1IjoiY2xlYmVyb2x2IiwiYSI6ImNtN25hb3V2ZjB2b2gybXBybHd2ZXF1ajgifQ.YAFaxUpDyI8W7IV0aVY6FA";
+
+      // Inicializando o mapa com efeito 3D
       const map = new mapboxgl.Map({
         container: "map",
-        style: "mapbox://styles/mapbox/light-v11", // Estilo com dados de edifícios
-        center: [-74.0066, 40.7135], // Localização inicial
-        zoom: 15.5, // Zoom inicial
-        pitch: 45, // Inclinação da câmera (visualização em 3D)
-        bearing: -17.6, // Direção da câmera
-        antialias: true, // Suavização
+        style: "mapbox://styles/mapbox/light-v11",
+        center: [-74.0066, 40.7135],
+        zoom: 15.5,
+        pitch: 45, // Inclinação para 3D
+        bearing: -17.6, // Rotação do mapa
+        antialias: true, // Suavização para melhor qualidade
       });
 
-      map.on("style.load", () => {
-        const layers = map.getStyle().layers;
-        const labelLayerId = layers.find(
-          (layer) => layer.type === "symbol" && layer.layout["text-field"]
-        ).id;
-
-        map.addLayer(
-          {
-            id: "add-3d-buildings",
-            source: "composite",
-            "source-layer": "building",
-            filter: ["==", "extrude", "true"],
-            type: "fill-extrusion",
-            minzoom: 15,
-            paint: {
-              "fill-extrusion-color": "#aaa",
-              "fill-extrusion-height": [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                15,
-                0,
-                15.05,
-                ["get", "height"],
-              ],
-              "fill-extrusion-base": [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                15,
-                0,
-                15.05,
-                ["get", "min_height"],
-              ],
-              "fill-extrusion-opacity": 0.6,
-            },
+      // Adicionando prédios 3D
+      map.on("load", () => {
+        map.addLayer({
+          id: "3d-buildings",
+          source: "composite",
+          "source-layer": "building",
+          type: "fill-extrusion",
+          minzoom: 15,
+          paint: {
+            "fill-extrusion-color": "#aaa",
+            "fill-extrusion-height": ["get", "height"],
+            "fill-extrusion-base": ["get", "min_height"],
+            "fill-extrusion-opacity": 0.6,
           },
-          labelLayerId
-        );
+        });
       });
 
-      // Função para alterar o estilo do mapa
       function changeMapStyle() {
         const selectedStyle = document.getElementById("mapStyleSelect").value;
         map.setStyle(selectedStyle);
@@ -132,6 +101,17 @@
           return;
         }
         const file = fileInput.files[0];
+        document.getElementById("imageSource").innerText = file.name;
+        document.getElementById("imageSize").innerText =
+          (file.size / 1024).toFixed(2) + " KB";
+        document.getElementById("imageFormat").innerText = file.type;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const preview = document.getElementById("imagePreview");
+          preview.src = e.target.result;
+          preview.classList.remove("hidden");
+        };
+        reader.readAsDataURL(file);
         readExifData(file);
       }
 
@@ -145,6 +125,9 @@
           if (latitude && longitude && latitudeRef && longitudeRef) {
             const latitudeDecimal = convertToDecimal(latitude, latitudeRef);
             const longitudeDecimal = convertToDecimal(longitude, longitudeRef);
+            document.getElementById(
+              "imageCoords"
+            ).innerText = `${latitudeDecimal}, ${longitudeDecimal}`;
 
             if (!isNaN(latitudeDecimal) && !isNaN(longitudeDecimal)) {
               map.flyTo({
@@ -157,15 +140,11 @@
                 .addTo(map)
                 .setPopup(
                   new mapboxgl.Popup().setHTML(
-                    `<b>Localização da Foto</b><br><br>Lat: ${latitudeDecimal}, <br>Lng: ${longitudeDecimal}<br><br><a href="https://www.google.com/maps/search/?api=1&query=${latitudeDecimal},${longitudeDecimal}" target="_blank" class="popup-button">Ver no Google Maps</a>`
+                    `<b>Localização da Foto</b><br><br>Lat: ${latitudeDecimal}, <br>Lng: ${longitudeDecimal}<br><br><a href="https://www.google.com/maps/search/?api=1&query=${latitudeDecimal},${longitudeDecimal}" target="_blank" class="block bg-blue-600 text-white p-2 rounded mt-2 text-center">Ver no Google Maps</a>`
                   )
                 )
                 .togglePopup();
-            } else {
-              alert("A imagem não possui coordenadas GPS válidas.");
             }
-          } else {
-            alert("Esta imagem não contém coordenadas EXIF.");
           }
         });
       }
