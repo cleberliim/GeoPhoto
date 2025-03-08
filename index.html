@@ -88,12 +88,16 @@
         });
       });
 
+      /*************  ✨ Codeium Command 🌟  *************/
+      /**
+       * 67 / 5.000 Altera o estilo do mapa quando uma nova opção é selecionada no menu suspenso
+       */
       function changeMapStyle() {
         const selectedStyle = document.getElementById("mapStyleSelect").value;
+        // Defina o novo estilo de mapa usando o valor selecionado
         map.setStyle(selectedStyle);
       }
-
-      let marker;
+      /******  dcbe9802-ce03-44fa-a7f4-04bb957f2e02  *******/
       function uploadImage() {
         const fileInput = document.getElementById("fileInput");
         if (!fileInput.files.length) {
