@@ -19,10 +19,10 @@ Durante o desenvolvimento deste projeto, adquiri conhecimentos sobre:
 
 Este projeto pode ser aplicado para otimizar o rastreamento de entregas. Um exemplo prático seria a captura automática das coordenadas GPS ao tirar uma foto de uma nota fiscal (NF) no momento da entrega. Com isso, é possível:
 
--  **Confirmação de entrega** com local exato 📍
--  **Automação de check-ins logísticos** 🕒
--  **Redução de fraudes e erros em entregas** 🔍
--  **Monitoramento em tempo real** de entregas finalizadas 📡
+-  **Confirmação de entrega** com local exato 
+-  **Automação de check-ins logísticos** 
+-  **Redução de fraudes e erros em entregas** 
+-  **Monitoramento em tempo real** de entregas finalizadas 
 
 ##  Como Executar o Projeto
 
