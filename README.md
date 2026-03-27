@@ -1,30 +1,30 @@
-# 📍 Geolocalização em Imagens
+#  Geolocalização em Imagens
 
 Este projeto explora a extração de coordenadas GPS embutidas nos metadados de uma imagem e sua exibição em um mapa interativo utilizando o Mapbox.
 
-## 🚀 Tecnologias Utilizadas
+##  Tecnologias Utilizadas
 
-- ✅ **JavaScript**
-- ✅ **API Mapbox GL JS**
+-  **JavaScript**
+- **API Mapbox GL JS**
 
-## 💡 Aprendizados
+##  Aprendizados
 
 Durante o desenvolvimento deste projeto, adquiri conhecimentos sobre:
 
-- 🔹 Extração de metadados de imagens para obtenção de coordenadas GPS.
-- 🔹 Manipulação de mapas interativos via JavaScript.
-- 🔹 Integração com o **Mapbox GL JS** para visualização dinâmica.
+-  Extração de metadados de imagens para obtenção de coordenadas GPS.
+-  Manipulação de mapas interativos via JavaScript.
+-  Integração com o **Mapbox GL JS** para visualização dinâmica.
 
-## 🛠️ Aplicação na Logística
+##  Aplicação na Logística
 
 Este projeto pode ser aplicado para otimizar o rastreamento de entregas. Um exemplo prático seria a captura automática das coordenadas GPS ao tirar uma foto de uma nota fiscal (NF) no momento da entrega. Com isso, é possível:
 
-- ✅ **Confirmação de entrega** com local exato 📍
-- ✅ **Automação de check-ins logísticos** 🕒
-- ✅ **Redução de fraudes e erros em entregas** 🔍
-- ✅ **Monitoramento em tempo real** de entregas finalizadas 📡
+-  **Confirmação de entrega** com local exato 📍
+-  **Automação de check-ins logísticos** 🕒
+-  **Redução de fraudes e erros em entregas** 🔍
+-  **Monitoramento em tempo real** de entregas finalizadas 📡
 
-## 📌 Como Executar o Projeto
+##  Como Executar o Projeto
 
 ```bash
 # Clone este repositório
